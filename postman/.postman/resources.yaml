@@ -1,0 +1,9 @@
+# Use this workspace to collaborate
+workspace:
+  id: 72c49b57-5e60-4b97-8ec0-84c53f6a427d
+
+localResources:
+  collections:
+    - ../ledgergenie-tally-api.postman_collection.json
+  environments:
+    - ../ledgergenie-tally-api.postman_environment.json

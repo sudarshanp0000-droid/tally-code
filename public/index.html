@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LedgerGenie Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-mark">L</div>
+          <div>
+            <p class="eyebrow">LedgerGenie</p>
+            <h1>Operations Dashboard</h1>
+          </div>
+        </div>
+        <a class="ghost-btn" href="/health" target="_blank" rel="noreferrer">API health</a>
+      </header>
+
+      <main class="dashboard">
+        <section class="panel controls-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-label">Connection</p>
+              <h2>Load Tally account data</h2>
+            </div>
+          </div>
+
+          <form id="dashboardForm" class="dashboard-form">
+            <div class="field-group">
+              <label for="tokenInput">Bearer token</label>
+              <input id="tokenInput" name="token" type="password" placeholder="Paste your access token" autocomplete="off" />
+            </div>
+
+            <div class="field-group">
+              <label for="apiUrlInput">API endpoint</label>
+              <input id="apiUrlInput" name="apiUrl" type="text" value="/api/v1/coa" />
+            </div>
+
+            <button type="submit" class="primary-btn">Load data</button>
+          </form>
+
+          <div id="statusMessage" class="status-message info">
+            Connect your token to fetch live chart-of-accounts data.
+          </div>
+        </section>
+
+        <section class="stats-grid">
+          <article class="stat-card accent-blue">
+            <span class="stat-label">Customer</span>
+            <strong id="statCustomer">--</strong>
+          </article>
+          <article class="stat-card accent-green">
+            <span class="stat-label">Accounts</span>
+            <strong id="statAccounts">0</strong>
+          </article>
+          <article class="stat-card accent-purple">
+            <span class="stat-label">Status</span>
+            <strong id="statStatus">Idle</strong>
+          </article>
+          <article class="stat-card accent-gold">
+            <span class="stat-label">Updated</span>
+            <strong id="statUpdated">--</strong>
+          </article>
+        </section>
+
+        <section class="panel table-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-label">Accounts</p>
+              <h2>Chart of accounts</h2>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Account name</th>
+                  <th>Type</th>
+                  <th>Category</th>
+                  <th>Number</th>
+                  <th>Parent</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="accountsTableBody">
+                <tr>
+                  <td colspan="6" class="empty-state">No account data loaded yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,187 @@
+{
+  "info": {
+    "name": "LedgerGenie Tally API",
+    "description": "Postman collection for the LedgerGenie Tally API. Import this collection along with the environment file and replace the placeholder values before sharing with the consultancy team.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "3a5e8db5-88a2-4b48-8d4f-06aa4e1c8123"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Create token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-admin-key",
+                "value": "{{admin_api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"{{customer_id}}\",\n  \"scope\": \"coa:read\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/tokens",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "tokens"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Revoke token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-admin-key",
+                "value": "{{admin_api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/tokens/revoke",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "tokens",
+                "revoke"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List customer tokens",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-admin-key",
+                "value": "{{admin_api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/tokens/{{customer_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "tokens",
+                "{{customer_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Protected APIs",
+      "item": [
+        {
+          "name": "Get Chart of Accounts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/coa",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "coa"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Post Tally Records",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idempotency_key\": \"{{idempotency_key}}\",\n  \"records\": [\n    {\n      \"account_name\": \"Sales Revenue\",\n      \"parent_group\": \"Sales Accounts\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tally/post",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tally",
+                "post"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
