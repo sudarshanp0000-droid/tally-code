@@ -7,6 +7,11 @@ function getProviderConfig() {
     baseUrl,
     apiKey: process.env.TALLY_PROVIDER_API_KEY || process.env.TALLY_PROVIDER_KEY || "",
     authToken: process.env.TALLY_PROVIDER_AUTH_TOKEN || process.env.TALLY_PROVIDER_TOKEN || "",
+    authTokenQueryParam: process.env.TALLY_PROVIDER_AUTH_QUERY_PARAM || "",
+    customerIdParam:
+      process.env.TALLY_PROVIDER_CUSTOMER_ID_PARAM === undefined
+        ? "customer_id"
+        : process.env.TALLY_PROVIDER_CUSTOMER_ID_PARAM,
   };
 }
 
@@ -19,7 +24,7 @@ function getRequestHeaders(config) {
     headers["x-api-key"] = config.apiKey;
   }
 
-  if (config.authToken) {
+  if (config.authToken && !config.authTokenQueryParam) {
     headers.Authorization = `Bearer ${config.authToken}`;
   }
 
@@ -37,8 +42,12 @@ async function requestProvider({ path, method = "GET", body, customerId, params 
 
   const url = new URL(path.startsWith("http") ? path : `${config.baseUrl}${path.startsWith("/") ? path : `/${path}`}`);
 
-  if (customerId) {
-    url.searchParams.set("customer_id", customerId);
+  if (customerId && config.customerIdParam) {
+    url.searchParams.set(config.customerIdParam, customerId);
+  }
+
+  if (config.authToken && config.authTokenQueryParam) {
+    url.searchParams.set(config.authTokenQueryParam, config.authToken);
   }
 
   Object.entries(params).forEach(([key, value]) => {
@@ -102,7 +111,7 @@ function normalizeAccounts(payload) {
 
 async function getChartOfAccounts(customerId) {
   const payload = await requestProvider({
-    path: "/chart-of-accounts",
+    path: process.env.TALLY_PROVIDER_COA_PATH || "/chart-of-accounts",
     customerId,
   });
 

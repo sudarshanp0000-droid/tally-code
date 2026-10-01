@@ -1,3 +1,4 @@
+const { timingSafeEqual } = require("crypto");
 const { hashToken } = require("../utils/tokenGen");
 const db = require("../db");
 
@@ -11,6 +12,24 @@ function requireToken(requiredScope) {
         error: "missing_token",
         message: "Provide a token via Authorization: Bearer <token> or ?AuthorizationToken=",
       });
+    }
+
+    const configuredCoaToken = process.env.COA_API_TOKEN || "";
+    const providedToken = Buffer.from(rawToken);
+    const expectedCoaToken = Buffer.from(configuredCoaToken);
+    if (
+      requiredScope === "coa:read" &&
+      configuredCoaToken &&
+      providedToken.length === expectedCoaToken.length &&
+      timingSafeEqual(providedToken, expectedCoaToken)
+    ) {
+      const customerId = process.env.COA_CUSTOMER_ID;
+      if (!customerId) {
+        return res.status(503).json({ error: "coa_customer_id_not_configured" });
+      }
+
+      req.tokenRecord = { customer_id: customerId, scope: "coa:read", env_backed: true };
+      return next();
     }
 
     const tokenHash = hashToken(rawToken);
@@ -31,7 +50,7 @@ function requireToken(requiredScope) {
       });
     }
 
-    db.touchLastUsed(tokenHash);
+    if (!record.env_backed) db.touchLastUsed(tokenHash);
     req.tokenRecord = record;
     next();
   };

@@ -9,11 +9,14 @@
  */
 
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 
-const dataDir = path.join(__dirname, "data");
+const dataDir = process.env.VERCEL === "1"
+  ? path.join(os.tmpdir(), "ledgergenie-tally-api")
+  : path.join(__dirname, "data");
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
 const adapter = new FileSync(path.join(dataDir, "db.json"));
