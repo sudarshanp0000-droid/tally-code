@@ -1,7 +1,7 @@
-const { v4: uuidv4 } = require("uuid");
+const { randomUUID } = require("crypto");
 
 function requestLogger(req, res, next) {
-  req.request_id = uuidv4();
+  req.request_id = randomUUID();
   const start = Date.now();
 
   res.on("finish", () => {

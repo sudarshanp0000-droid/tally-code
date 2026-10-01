@@ -84,10 +84,8 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = Number(process.env.PORT) || 3000;
-if (process.env.VERCEL !== "1") {
-  app.listen(PORT, () => {
-    console.log(`LedgerGenie Tally API listening on port ${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`LedgerGenie Tally API listening on port ${PORT}`);
+});
 
 module.exports = app;

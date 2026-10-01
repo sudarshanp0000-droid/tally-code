@@ -11,6 +11,7 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const { randomUUID } = require("crypto");
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 
@@ -30,7 +31,7 @@ db.defaults({ tokens: [], accessLogs: [] }).write();
  */
 function createToken(tokenHash, fields) {
   const record = {
-    id: require("uuid").v4(),
+    id: randomUUID(),
     token_hash: tokenHash,
     customer_id: fields.customer_id,
     scope: fields.scope || "coa:read",
