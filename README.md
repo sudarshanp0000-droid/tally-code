@@ -27,7 +27,7 @@ ALLOWED_ORIGINS=http://localhost:3000,https://your-website.com
 NODE_ENV=development
 ```
 
-For a provider that uses a query-string token, set `TALLY_PROVIDER_AUTH_TOKEN` to its rotated token, set `TALLY_PROVIDER_AUTH_QUERY_PARAM=AuthorizationToken`, and set `TALLY_PROVIDER_CUSTOMER_ID_PARAM` to an empty value if the provider does not accept a `customer_id` parameter. The provider base URL should be the path before the endpoint, for example `https://provider.example.com/tally/services/apexrest`, with `TALLY_PROVIDER_COA_PATH=/getChartOfAccounts`.
+For a provider that uses a query-string token, set `TALLY_PROVIDER_AUTH_TOKEN` to its rotated token, set `TALLY_PROVIDER_AUTH_QUERY_PARAM=AuthorizationToken`, and set `TALLY_PROVIDER_CUSTOMER_ID_PARAM` to an empty value if the provider does not accept a `customer_id` parameter. The provider base URL should be with `TALLY_PROVIDER_COA_PATH=/getChartOfAccounts`.
 
 ## Run
 
@@ -46,8 +46,7 @@ curl -X POST http://localhost:8080/api/v1/admin/tokens \
 
 This creates a token that your front-end or partner service can use to call the protected routes.
 
-On Vercel, use `COA_API_TOKEN` and `COA_CUSTOMER_ID` for the read-only COA route instead of relying on tokens created in the local JSON database. Set `COA_API_TOKEN` to a long random secret and provide that token to the consultancy securely. The Vercel temporary filesystem is not persistent, so tokens created through the admin route are not durable there.
-
+On Vercel, use `COA_API_TOKEN` and `COA_CUSTOMER_ID` for the read-only COA route.
 ## Protected routes
 
 ### Chart of accounts
@@ -78,8 +77,3 @@ Content-Type: application/json
 
 This forwards the write request to the provider and returns the provider response with idempotency protection locally.
 
-## Notes
-
-- All static or mock chart-of-account data has been removed.
-- Comments and demo placeholders were cleaned out of the runtime code.
-- The app is ready to connect to a real Tally provider through environment-based configuration.
