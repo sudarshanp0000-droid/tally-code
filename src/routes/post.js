@@ -1,6 +1,5 @@
 const express = require("express");
 const rateLimit = require("express-rate-limit");
-const { requireToken } = require("../middleware/auth");
 const db = require("../db");
 const { postTallyRecords } = require("../services/tallyProvider");
 
@@ -8,9 +7,13 @@ const router = express.Router();
 const postLimiter = rateLimit({ windowMs: 60 * 1000, max: 20 });
 const idempotencyCache = new Map();
 
-router.post("/tally/post", postLimiter, requireToken("tally:write"), async (req, res) => {
-  const { customer_id } = req.tokenRecord;
+router.post("/tally/post", postLimiter, async (req, res) => {
+  const customer_id = process.env.COA_CUSTOMER_ID;
   const { idempotency_key, records } = req.body || {};
+
+  if (!customer_id) {
+    return res.status(503).json({ error: "coa_customer_id_not_configured" });
+  }
 
   if (!idempotency_key) {
     return res.status(400).json({ error: "idempotency_key is required for all write operations" });

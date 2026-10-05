@@ -33,11 +33,6 @@
 
           <form id="dashboardForm" class="dashboard-form">
             <div class="field-group">
-              <label for="tokenInput">Bearer token</label>
-              <input id="tokenInput" name="token" type="password" placeholder="Paste your access token" autocomplete="off" />
-            </div>
-
-            <div class="field-group">
               <label for="apiUrlInput">API endpoint</label>
               <input id="apiUrlInput" name="apiUrl" type="text" value="/api/v1/coa" />
             </div>
@@ -46,52 +41,67 @@
           </form>
 
           <div id="statusMessage" class="status-message info">
-            Connect your token to fetch live chart-of-accounts data.
+            Load the configured Tally account data without browser credentials.
           </div>
         </section>
 
         <section class="stats-grid">
           <article class="stat-card accent-blue">
-            <span class="stat-label">Customer</span>
+            <span class="stat-label">Company</span>
             <strong id="statCustomer">--</strong>
           </article>
           <article class="stat-card accent-green">
-            <span class="stat-label">Accounts</span>
+            <span class="stat-label">Ledgers</span>
             <strong id="statAccounts">0</strong>
           </article>
           <article class="stat-card accent-purple">
-            <span class="stat-label">Status</span>
-            <strong id="statStatus">Idle</strong>
+            <span class="stat-label">Groups</span>
+            <strong id="statGroups">0</strong>
           </article>
           <article class="stat-card accent-gold">
-            <span class="stat-label">Updated</span>
-            <strong id="statUpdated">--</strong>
+            <span class="stat-label">GST registered</span>
+            <strong id="statGstRegistered">0</strong>
           </article>
         </section>
 
         <section class="panel table-panel">
           <div class="panel-header">
             <div>
-              <p class="section-label">Accounts</p>
-              <h2>Chart of accounts</h2>
+              <p class="section-label">Tally data</p>
+              <h2>Ledgers</h2>
             </div>
+          </div>
+
+          <div class="ledger-filters">
+            <label class="field-group" for="ledgerSearch">
+              <span>Search ledgers</span>
+              <input id="ledgerSearch" type="search" placeholder="Name, GSTIN, state, or any ledger detail" />
+            </label>
+            <label class="field-group" for="groupFilter">
+              <span>Group</span>
+              <select id="groupFilter">
+                <option value="">All groups</option>
+              </select>
+            </label>
+            <p id="ledgerCount" class="ledger-count" aria-live="polite">No ledgers loaded</p>
           </div>
 
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Account name</th>
-                  <th>Type</th>
-                  <th>Category</th>
-                  <th>Number</th>
-                  <th>Parent</th>
-                  <th>Status</th>
+                  <th>Ledger name</th>
+                  <th>Group</th>
+                  <th>Opening balance</th>
+                  <th>GSTIN</th>
+                  <th>Location</th>
+                  <th>Bill-wise</th>
+                  <th><span class="sr-only">Details</span></th>
                 </tr>
               </thead>
               <tbody id="accountsTableBody">
                 <tr>
-                  <td colspan="6" class="empty-state">No account data loaded yet.</td>
+                  <td colspan="7" class="empty-state">No ledger data loaded yet.</td>
                 </tr>
               </tbody>
             </table>

@@ -1,14 +1,12 @@
 const express = require("express");
 const rateLimit = require("express-rate-limit");
 const { generateRawToken, hashToken } = require("../utils/tokenGen");
-const { requireAdminKey } = require("../middleware/auth");
 const db = require("../db");
 
 const router = express.Router();
 const adminLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30 });
 
 router.use(adminLimiter);
-router.use(requireAdminKey);
 
 router.post("/tokens", (req, res) => {
   const { customer_id, scope } = req.body || {};

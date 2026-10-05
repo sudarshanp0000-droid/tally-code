@@ -1,14 +1,17 @@
 const express = require("express");
 const rateLimit = require("express-rate-limit");
-const { requireToken } = require("../middleware/auth");
 const db = require("../db");
 const { getChartOfAccounts } = require("../services/tallyProvider");
 
 const router = express.Router();
 const coaLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 
-router.get(["/getChartOfAccounts", "/coa"], coaLimiter, requireToken("coa:read"), async (req, res) => {
-  const { customer_id } = req.tokenRecord;
+router.get(["/getChartOfAccounts", "/coa"], coaLimiter, async (req, res) => {
+  const customer_id = process.env.COA_CUSTOMER_ID;
+
+  if (!customer_id) {
+    return res.status(503).json({ error: "coa_customer_id_not_configured" });
+  }
 
   try {
     const accounts = await getChartOfAccounts(customer_id);

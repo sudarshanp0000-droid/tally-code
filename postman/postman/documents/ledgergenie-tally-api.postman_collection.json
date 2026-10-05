@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "LedgerGenie Tally API",
-    "description": "Postman collection for the LedgerGenie Tally API. Import this collection along with the environment file and replace the placeholder values before sharing with the consultancy team.",
+    "description": "Postman collection for the public LedgerGenie Tally API. No caller token or admin key is required.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_postman_id": "3a5e8db5-88a2-4b48-8d4f-06aa4e1c8123"
   },
@@ -34,10 +34,6 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
-              },
-              {
-                "key": "x-admin-key",
-                "value": "{{admin_api_key}}"
               }
             ],
             "body": {
@@ -67,10 +63,6 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
-              },
-              {
-                "key": "x-admin-key",
-                "value": "{{admin_api_key}}"
               }
             ],
             "body": {
@@ -97,12 +89,7 @@
           "name": "List customer tokens",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "x-admin-key",
-                "value": "{{admin_api_key}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/admin/tokens/{{customer_id}}",
               "host": [
@@ -122,18 +109,13 @@
       ]
     },
     {
-      "name": "Protected APIs",
+      "name": "Public APIs",
       "item": [
         {
           "name": "Get Chart of Accounts",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/coa",
               "host": [
@@ -156,10 +138,6 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
               }
             ],
             "body": {

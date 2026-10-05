@@ -92,6 +92,10 @@ async function requestProvider({ path, method = "GET", body, customerId, params 
 function normalizeAccounts(payload) {
   const accounts = Array.isArray(payload?.accounts)
     ? payload.accounts
+    : Array.isArray(payload?.DATA?.LEDGERDET)
+      ? payload.DATA.LEDGERDET
+      : Array.isArray(payload?.LEDGERDET)
+        ? payload.LEDGERDET
     : Array.isArray(payload?.data)
       ? payload.data
       : Array.isArray(payload?.results)
@@ -99,12 +103,25 @@ function normalizeAccounts(payload) {
         : [];
 
   return accounts.map((account, index) => ({
-    account_number: account.account_number ?? account.accountNumber ?? account.number ?? account.code ?? index,
-    account_name: account.account_name ?? account.accountName ?? account.name ?? "Unnamed account",
+    account_number:
+      account.account_number ??
+      account.accountNumber ??
+      account.number ??
+      account.code ??
+      account.LEDMSID ??
+      account["SD Sr No"] ??
+      index,
+    account_name: account.account_name ?? account.accountName ?? account.name ?? account.LEDNAME ?? "Unnamed account",
     account_type: account.account_type ?? account.accountType ?? account.type ?? "Unknown",
-    account_category: account.account_category ?? account.accountCategory ?? account.category ?? account.parent_group ?? null,
+    account_category:
+      account.account_category ??
+      account.accountCategory ??
+      account.category ??
+      account.parent_group ??
+      account.LEDGRP ??
+      null,
     is_active: account.is_active ?? account.isActive ?? true,
-    parent_account: account.parent_account ?? account.parentAccount ?? null,
+    parent_account: account.parent_account ?? account.parentAccount ?? account.LEDGRP ?? null,
     ...account,
   }));
 }
