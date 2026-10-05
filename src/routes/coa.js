@@ -7,25 +7,20 @@ const router = express.Router();
 const coaLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 
 router.get(["/getChartOfAccounts", "/coa"], coaLimiter, async (req, res) => {
-  const customer_id = process.env.COA_CUSTOMER_ID;
-
-  if (!customer_id) {
-    return res.status(503).json({ error: "coa_customer_id_not_configured" });
-  }
-
   try {
-    const accounts = await getChartOfAccounts(customer_id);
+    const accounts = await getChartOfAccounts();
+    const company_name = accounts.find((account) => account.CMPNAME)?.CMPNAME;
 
     db.logAccess({
       request_id: req.request_id,
-      customer_id,
+      company_name,
       endpoint: "getChartOfAccounts",
       ip: req.ip,
       result_count: accounts.length,
     });
 
     return res.json({
-      customer_id,
+      ...(company_name ? { company_name } : {}),
       generated_at: new Date().toISOString(),
       count: accounts.length,
       accounts,
@@ -33,7 +28,6 @@ router.get(["/getChartOfAccounts", "/coa"], coaLimiter, async (req, res) => {
   } catch (error) {
     db.logAccess({
       request_id: req.request_id,
-      customer_id,
       endpoint: "getChartOfAccounts",
       ip: req.ip,
       result_count: 0,
@@ -44,7 +38,6 @@ router.get(["/getChartOfAccounts", "/coa"], coaLimiter, async (req, res) => {
     return res.status(error.statusCode || 500).json({
       error: "tally_provider_error",
       message: error.message,
-      customer_id,
     });
   }
 });

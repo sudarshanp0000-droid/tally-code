@@ -4,7 +4,7 @@ The Express API serves a browser dashboard and forwards Tally requests to a conf
 
 ## Public access
 
-Caller authentication is not required for any route. The dashboard at `/` and `/dashboard` requests `/api/v1/coa` without a token or credential. The API uses the server-side `COA_CUSTOMER_ID` for chart-of-accounts and write requests.
+Caller authentication is not required for any route. The dashboard at `/` and `/dashboard` requests `/api/v1/coa` without a token, credential, or customer ID. The read route requests the provider's configured/default company and derives its display name from the returned ledger data. `COA_CUSTOMER_ID` is only used by the write route to choose its target customer.
 
 This makes the configured customer's accounts publicly readable and allows unauthenticated Tally writes and token administration. Provider API keys and tokens remain server-side; they are used only for requests from this API to the external Tally provider.
 
@@ -20,9 +20,9 @@ This makes the configured customer's accounts publicly readable and allows unaut
 ## Read flow
 
 1. The browser requests the dashboard or calls a read route directly.
-2. The API reads the configured `COA_CUSTOMER_ID`.
-3. The API calls the configured Tally provider with any provider credentials held in the server environment.
-4. The API normalizes the provider response, including the Tally `{ "DATA": { "LEDGERDET": [...] } }` format, logs the request, and returns JSON.
+2. The API calls the configured Tally provider with any provider credentials held in the server environment, without a customer ID query parameter.
+3. The API normalizes the provider response, including the Tally `{ "DATA": { "LEDGERDET": [...] } }` format, and derives the company name from the returned ledgers.
+4. The API logs the request and returns JSON.
 5. The dashboard presents ledger name, group, opening balance, GSTIN, location, and bill-wise status. Users can search/filter ledgers and expand a row to view all available fields.
 
 ## Write flow
@@ -36,7 +36,8 @@ Caller authentication is disabled, but request-shape checks, rate limits, provid
 
 ## Operational notes
 
-- Configure `COA_CUSTOMER_ID`, `TALLY_PROVIDER_BASE_URL`, and provider credentials (when required) in the server environment.
+- Configure `TALLY_PROVIDER_BASE_URL` and provider credentials (when required) in the server environment. The provider must return its intended/default company's ledgers when the read request has no customer ID.
+- Configure `COA_CUSTOMER_ID` if the write endpoint will be used; it selects the write target.
 - Configure `ALLOWED_ORIGINS` when a separate browser origin needs cross-origin API access.
 - `src/db.js` stores token metadata and access logs locally; the public token-management routes do not control API access.
 - Only deploy this public configuration if exposing account data and allowing public writes is intentional.
