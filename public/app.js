@@ -267,7 +267,15 @@ async function loadData(event) {
       throw new Error(message);
     }
 
-    accounts = Array.isArray(payload?.accounts) ? payload.accounts : [];
+    accounts = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.accounts)
+        ? payload.accounts
+        : Array.isArray(payload?.DATA?.LEDGERDET)
+          ? payload.DATA.LEDGERDET
+          : Array.isArray(payload?.LEDGERDET)
+            ? payload.LEDGERDET
+            : [];
     updateSummary(payload);
     updateGroupOptions();
     renderAccounts();

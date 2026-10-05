@@ -4,40 +4,35 @@ The Express API serves a browser dashboard and forwards Tally requests to a conf
 
 ## Public access
 
-Caller authentication is not required for any route. The dashboard at `/` and `/dashboard` requests `/api/v1/coa` without a token, credential, or customer ID. The read route requests the provider's configured/default company and derives its display name from the returned ledger data. `COA_CUSTOMER_ID` is only used by the write route to choose its target customer.
+Caller authentication, a Tally provider URL, and a customer ID are not required for the data routes. `POST /api/v1/tally/post` stores any valid JSON value in memory; `GET /api/v1/coa` and `GET /api/v1/getChartOfAccounts` return the latest stored value. Data is cleared on restart, and Vercel instances do not share memory.
 
-This makes the configured customer's accounts publicly readable and allows unauthenticated Tally writes and token administration. Provider API keys and tokens remain server-side; they are used only for requests from this API to the external Tally provider.
+These routes are public: anyone can read or replace the stored value. This is a simple JSON relay/store, not a live Tally integration.
 
 ## Routes
 
 - `GET /health` returns the service health status.
-- `GET /api/v1/coa` and `GET /api/v1/getChartOfAccounts` fetch and normalize chart-of-accounts data.
-- `POST /api/v1/tally/post` forwards records to the provider.
+- `GET /api/v1/coa` and `GET /api/v1/getChartOfAccounts` return the latest stored JSON value.
+- `POST /api/v1/tally/post` accepts and stores any valid JSON value.
 - `POST /api/v1/admin/tokens` creates a token record.
 - `POST /api/v1/admin/tokens/revoke` revokes the token in the request body.
 - `GET /api/v1/admin/tokens/:customer_id` returns token metadata for that customer.
 
 ## Read flow
 
-1. The browser requests the dashboard or calls a read route directly.
-2. The API calls the configured Tally provider with any provider credentials held in the server environment, without a customer ID query parameter.
-3. The API normalizes the provider response, including the Tally `{ "DATA": { "LEDGERDET": [...] } }` format, and derives the company name from the returned ledgers.
-4. The API logs the request and returns JSON.
-5. The dashboard presents ledger name, group, opening balance, GSTIN, location, and bill-wise status. Users can search/filter ledgers and expand a row to view all available fields.
+1. A client posts valid JSON to `/api/v1/tally/post`.
+2. The API stores the value in process memory and returns it unchanged.
+3. The browser requests `/api/v1/coa` and displays ledger rows when the stored JSON contains a ledger list.
 
 ## Write flow
 
-1. A client submits a JSON body with a non-empty `idempotency_key` and a non-empty `records` array.
-2. The API uses `COA_CUSTOMER_ID` as the target customer.
-3. The API returns a cached response for a repeated idempotency key or forwards the records to the provider.
-4. The API logs the operation and returns the provider result.
+1. A client submits any syntactically valid JSON value.
+2. The API stores it in process memory and returns it unchanged.
 
-Caller authentication is disabled, but request-shape checks, rate limits, provider error handling, and write idempotency remain enabled.
+No payload schema, caller token, provider URL, or customer ID is required for these routes. The JSON parser still requires syntactically valid JSON.
 
 ## Operational notes
 
-- Configure `TALLY_PROVIDER_BASE_URL` and provider credentials (when required) in the server environment. The provider must return its intended/default company's ledgers when the read request has no customer ID.
-- Configure `COA_CUSTOMER_ID` if the write endpoint will be used; it selects the write target.
 - Configure `ALLOWED_ORIGINS` when a separate browser origin needs cross-origin API access.
 - `src/db.js` stores token metadata and access logs locally; the public token-management routes do not control API access.
-- Only deploy this public configuration if exposing account data and allowing public writes is intentional.
+- Memory is not shared across Vercel instances and is cleared on restart; use a durable database if data must persist or be shared between instances.
+- Only deploy this public configuration if allowing anyone to read and overwrite the stored value is intentional.

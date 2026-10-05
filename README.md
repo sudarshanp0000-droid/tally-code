@@ -9,24 +9,15 @@ npm install
 cp .env.example .env
 ```
 
-Configure the service in `.env`:
+No provider URL, API key, token, or customer ID is needed. Optional HTTP settings:
 
 ```env
 PORT=8080
-TALLY_PROVIDER_BASE_URL=https://your-tally-provider.example.com/api
-TALLY_PROVIDER_COA_PATH=/chart-of-accounts
-TALLY_PROVIDER_API_KEY=
-TALLY_PROVIDER_AUTH_TOKEN=
-TALLY_PROVIDER_AUTH_QUERY_PARAM=
-TALLY_PROVIDER_CUSTOMER_ID_PARAM=customer_id
-TALLY_PROVIDER_TIMEOUT_MS=15000
 ALLOWED_ORIGINS=http://localhost:3000,https://your-website.com
 NODE_ENV=development
 ```
 
-No caller API token, bearer token, or admin key is required. The CoA read route requests the provider's configured/default company without requiring a customer ID and displays the company name returned in the ledger data. Provider credentials, if needed, stay in the server environment and are never sent by the browser. The write route still requires `COA_CUSTOMER_ID` to select its target customer.
-
-For a provider that uses a query-string token, set `TALLY_PROVIDER_AUTH_TOKEN` to its credential and set `TALLY_PROVIDER_AUTH_QUERY_PARAM=AuthorizationToken`. Set `TALLY_PROVIDER_CUSTOMER_ID_PARAM` to an empty value if the provider does not accept a `customer_id` parameter. The provider base URL should be the path before the endpoint, for example `https://provider.example.com/tally/services/apexrest`, with `TALLY_PROVIDER_COA_PATH=/getChartOfAccounts`.
+No Tally provider URL, customer ID, caller API token, bearer token, or admin key is required. `POST /api/v1/tally/post` accepts any JSON value and returns it. `GET /api/v1/coa` and `GET /api/v1/getChartOfAccounts` return the most recently posted JSON value. Data is kept in memory only; it is cleared when the server restarts, and Vercel instances do not share memory.
 
 ## Run
 
@@ -44,12 +35,22 @@ GET /api/v1/getChartOfAccounts
 ## API routes
 
 - `GET /health` — public health check.
-- `GET /api/v1/coa` or `/api/v1/getChartOfAccounts` — reads the provider's chart of accounts and derives the company name from the returned ledgers.
-- `POST /api/v1/tally/post` — sends records to the provider. The JSON body must include a non-empty `idempotency_key` and a non-empty `records` array.
+- `GET /api/v1/coa` or `/api/v1/getChartOfAccounts` — returns the most recently posted JSON value, or `null` before anything is posted.
+- `POST /api/v1/tally/post` — stores any valid JSON value in memory and returns it unchanged.
 - `POST /api/v1/admin/tokens` — creates a token record.
 - `POST /api/v1/admin/tokens/revoke` — revokes the token supplied in the JSON body.
 - `GET /api/v1/admin/tokens/:customer_id` — lists token metadata for the customer.
 
-All routes are accessible without caller authentication. Existing request-shape checks, rate limits, and write idempotency remain enabled.
+The data GET and POST routes require no caller authentication, provider configuration, customer ID, payload schema, rate limit, or idempotency key. The POST body must be syntactically valid JSON and is limited to 1 MB by the JSON parser.
 
-> **Important:** This configuration makes Tally account data public and allows anyone to submit Tally writes and use the token-management routes. Deploy it only when that public access is intentional. `COA_CUSTOMER_ID`, when configured, selects the write target; it is not a caller identity.
+Example:
+
+```bash
+curl -X POST http://localhost:8080/api/v1/tally/post \
+  -H "Content-Type: application/json" \
+  -d '{"DATA":{"LEDGERDET":[{"LEDNAME":"Cash","LEDGRP":"Cash-in-Hand","OP_BAL":"17,029.49"}]}}'
+
+curl http://localhost:8080/api/v1/coa
+```
+
+> **Important:** These public routes expose posted data to anyone and allow anyone to replace it. This is an in-memory JSON store, not a live Tally integration or durable database; Vercel may route separate requests to different instances.
